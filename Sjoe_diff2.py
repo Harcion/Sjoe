@@ -4,6 +4,7 @@ import scipy as sc
 from scipy import *
 from pylab import *
 from Sjoe_m_func2 import *
+from Sjoe_index import *
 
 np.set_printoptions(precision = 2)
 np.set_printoptions(linewidth = 180)
@@ -25,65 +26,48 @@ def jac(f, x):
 	return A
 
 def f(u):
-	z = u[:-5*n]
+	#z = u[:-5*n]
+	z = u[:ind.xdbldot()]
 	dz = oderhs(z,0)
-	fu = array(zeros(5*n))
-	fu = dz[-5*n:]-u[-5*n:]
+	fu = array(zeros(2+3*n))
+	fu = dz[ind.xdot():]-u[ind.xdbldot():]
 	return fu
 	
 
 
 ## Initial position/motion of the rolling elements
-n = 1
+n = 6
 N = 5*n+4
 u0 = array(zeros(N))
+ind = Index(n)
 
 for i in xrange(0,n):
-	u0[2+2*i] 		= (b0+c0)/2       # r
-	u0[3+2*i] 		= 2*pi*i/n        # theta
-	u0[4+2*n + 3*i] = 0               # rdot
-	u0[5+2*n + 3*i] = b0/(b0+c0)*w0   # thetadot
-	u0[6+2*n + 3*i] = b0/2/a0*w0      # phidot - note that phi is not a state variable since it does not matter here
+	u0[ind.r(i)] 		= (b0+c0)/2       # r
+	u0[ind.theta(i)] 	= 2*pi*i/n        # theta
+	u0[ind.rdot(i)] 	= 0               # rdot
+	u0[ind.thetadot(i)] = b0/(b0+c0)*w0   # thetadot
+	u0[ind.phidot(i)] 	= b0/2/a0*w0      # phidot - note that phi is not a state variable since it does not matter here
 
-u0_ = r_[u0, array(zeros(5*n))]
-
-#print u0_
-#print f(u0_)
+u0_ = r_[u0, array(zeros(2+3*n))]
+print u0_
+print f(u0_)
+print ""
 
 J = jac(f, u0_)
 print J
 
 (M,N) = shape(J)
 
-#(q,r) = sc.linalg.qr(J)
-#(U, s, Vh) = sc.linalg.svd(J)
-#S = sc.linalg.diagsvd(s,M,N)
-#
-#print "U:", U
-#print "S:", S
-#print "V:", Vh
-#print sc.linalg.norm(J - dot(U, dot(S, Vh)))
-
 Js = array(zeros(J.shape))
-exc = array([2+2*n, 3+2*n, 4+5*n, 5+5*n])
-# xdot, ydot, xdoubledot, ydoubledot
-#exc = array([0,1, 2+2*n, 3+2*n])
-# x, y, xdot, ydot
+#exc = array([ind.xdot(), ind.ydot(), ind.xdbldot(), ind.ydbldot()])
+exc = array([ind.x(), ind.y(), ind.xdot(), ind.ydot()])
 for i in range(0,n):
-	#exc = r_[exc, array([4+2*n+3*i, 5+2*n+3*i, 6+2*n+3*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
-	# rdot, thetadot, phidot, thetadoubledot, phidoubledot  # r, theta
-	
-	#exc = r_[exc, array([2+2*i, 3+2*i, 4+2*n+3*i, 5+2*n+3*i, 6+2*n+3*i])]#, ])]
-	# r, theta, rdot, thetadot, phidot
-	
-	#exc = r_[exc, array([4+2*n+3*i, 4+5*n + 2 + 5*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
-	# rdot, thetadot, phidot, rdoubledot, thetadoubledot, phidoubledot  # r, theta
-
-	exc = r_[exc, array([4+2*n+3*i, 5+2*n+3*i, 4+5*n + 2 + 5*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
-	# rdot, thetadot, phidot, rdoubledot, thetadoubledot, phidoubledot  # r, theta
-
+	#exc = r_[exc, array([ind.rdot(i), ind.thetadot(i), ind.rdbldot(i), ind.thetadbldot(i), ind.phidbldot(i)])]
+	exc = r_[exc, array([ind.r(i), ind.theta(i), ind.rdot(i), ind.thetadot(i), ind.phidot(i)])]
 k = 0
+
 for i in set(range(0,N)) - set(exc):
+	print i
 	Js[:,k] = copy(J[:,i])
 	k += 1
 
@@ -92,10 +76,12 @@ for i in exc:
 	k += 1
 
 print ""
-#print Js
+print Js
+print ""
+print Js[:2+3*n,:2+3*n]
 
-print Js[:5*n,:5*n]
-print rank(Js[:5*n,:5*n])
+print "Rank:", rank(Js[:2+3*n,:2+3*n])
+print "Max rank:", 2+3*n
 #
 #def permute(P, frm, to):
 #	(M,N) = P.shape

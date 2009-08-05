@@ -146,8 +146,8 @@ def oderhs(z,t):
 		rhs, F_xj, F_yj = rhs_ball(r_[z[2+2*j:4+2*j], z[4+2*n+3*j:7+2*n+3*j]], ring_state)
 		F_x += F_xj
 		F_y += F_yj
-		dz[2+3*j] = z[2+2*j]
-		dz[3+3*j] = z[3+2*j]
+		dz[2+3*j] = z[4+2*n]
+		dz[3+3*j] = z[5+2*n]
 
 		dz[4+2*n+3*j:7+2*n+3*j] = rhs
 	
