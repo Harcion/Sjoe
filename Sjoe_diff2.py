@@ -22,7 +22,6 @@ def jac(f, x):
 		x2 = x + e
 		fx2 = f(x2)
 		A[:,i] = (fx2-fx)/eps
-		print (x2-x)/eps
 	return A
 
 def f(u):
@@ -35,7 +34,7 @@ def f(u):
 
 
 ## Initial position/motion of the rolling elements
-n = 2
+n = 1
 N = 5*n+4
 u0 = array(zeros(N))
 
@@ -48,9 +47,8 @@ for i in xrange(0,n):
 
 u0_ = r_[u0, array(zeros(5*n))]
 
-print u0_
-
-print f(u0_)
+#print u0_
+#print f(u0_)
 
 J = jac(f, u0_)
 print J
@@ -69,11 +67,20 @@ print J
 Js = array(zeros(J.shape))
 exc = array([2+2*n, 3+2*n, 4+5*n, 5+5*n])
 # xdot, ydot, xdoubledot, ydoubledot
+#exc = array([0,1, 2+2*n, 3+2*n])
+# x, y, xdot, ydot
 for i in range(0,n):
-	exc = r_[exc, array([4+2*n+3*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
-	# rdot, thetadoubledot, phidoubledot, r, theta
-#([4+2*n, 4+5*n + 3, 4+5*n + 4, 2, 3])
+	#exc = r_[exc, array([4+2*n+3*i, 5+2*n+3*i, 6+2*n+3*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
+	# rdot, thetadot, phidot, thetadoubledot, phidoubledot  # r, theta
+	
+	#exc = r_[exc, array([2+2*i, 3+2*i, 4+2*n+3*i, 5+2*n+3*i, 6+2*n+3*i])]#, ])]
+	# r, theta, rdot, thetadot, phidot
+	
+	#exc = r_[exc, array([4+2*n+3*i, 4+5*n + 2 + 5*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
+	# rdot, thetadot, phidot, rdoubledot, thetadoubledot, phidoubledot  # r, theta
 
+	exc = r_[exc, array([4+2*n+3*i, 5+2*n+3*i, 4+5*n + 2 + 5*i, 4+5*n + 3 + 5*i, 4+5*n + 4 + 5*i])]#, 2+2*i, 3+2*i])]
+	# rdot, thetadot, phidot, rdoubledot, thetadoubledot, phidoubledot  # r, theta
 
 k = 0
 for i in set(range(0,N)) - set(exc):
@@ -85,7 +92,7 @@ for i in exc:
 	k += 1
 
 print ""
-print Js
+#print Js
 
 print Js[:5*n,:5*n]
 print rank(Js[:5*n,:5*n])
