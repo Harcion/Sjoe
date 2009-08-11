@@ -1,6 +1,7 @@
 from math import *
 from scipy import *
 from pylab import *
+from Sjoe_index import Index
 
 ## Physical constants
 g = 9.82; # Gravity constant
@@ -138,20 +139,20 @@ def rhs_ball(ball_state, outer_ring_state):
 def oderhs(z,t):
 	n = (len(z)-4)/5
 	dz = array(zeros(len(z)))
-	ring_state = r_[z[0:2], z[2+2*n:4+2*n]]
+	ind = Index(n)
+	ring_state = r_[z[ind.x():ind.y()+1], z[ind.xdot():ind.ydot()+1]]
 	F_x = 0
 	F_y = F_a
 
 	for j in xrange(0,n):
-		rhs, F_xj, F_yj = rhs_ball(r_[z[2+2*j:4+2*j], z[4+2*n+3*j:7+2*n+3*j]], ring_state)
+		rhs, F_xj, F_yj = rhs_ball(r_[z[ind.r(j):ind.theta(j)+1], z[ind.rdot(j):ind.phidot(j)+1]], ring_state)
 		F_x += F_xj
 		F_y += F_yj
-		dz[2+3*j] = z[4+2*n]
-		dz[3+3*j] = z[5+2*n]
+		dz[ind.r(j)] = z[ind.rdot(j)]
+		dz[ind.theta(j)] = z[ind.thetadot(j)]
+		dz[ind.rdot(j):ind.phidot(j)+1] = rhs
 
-		dz[4+2*n+3*j:7+2*n+3*j] = rhs
-	
-	dz[0:2] = z[2+2*n:4+2*n]
-	dz[2+2*n] = F_x/m0
-	dz[3+2*n] = F_y/m0
+	dz[ind.x():ind.y()+1] = z[ind.xdot():ind.ydot()+1]
+	dz[ind.xdot()] = F_x/m0
+	dz[ind.ydot()] = F_y/m0
 	return dz

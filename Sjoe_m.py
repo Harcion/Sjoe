@@ -39,7 +39,7 @@ import lsodar
 #    M_rmo=0;  # Rolling material damping torque w.r.t. outer ring
 
 ## Physical constants
-g = 0*9.82; # Gravity constant
+g = 9.82; # Gravity constant
 c_el = 1.065e10;
 c_sq1 = 0.08;
 c_sq2 = 5.e-4;
@@ -61,8 +61,8 @@ I = 2.*m*a0**2/5.; # Inertia of the RE
 w0 = 0*628.32; # Angular speed of the outer ring (~6000 rpm)
 #w0 = 52.36; # Angular speed of the outer ring (~500 rpm)
 m0 = 1 # Mass of the outer ring
-#F_a = 1000 # External force on the outer ring
-F_a = 0
+F_a = 1000 # External force on the outer ring
+#F_a = 0
 
 
 # This function calculates the right hand side of the equations of motion for
@@ -196,7 +196,7 @@ def oderhs(y,t):
 
 
 ## Initial position/motion of the rolling elements
-n = 8
+n = 1
 N = 5*n+4
 y0 = array(zeros(N))
 
@@ -209,15 +209,16 @@ for i in xrange(0,n):
 
 
 #numsteps = 2000
-numsteps = 100
+numsteps = 1000
 start = 0 
-end = 0.001
+end = 0.03
 
 T = linspace(start,end,numsteps)
 
 
 (Y, info) = lsodar.odeintr(oderhs, copy(y0), T, atol = 1e-8, rtol = 1e-8, full_output=1)
 
+print Y[-1,:]
 
 for j in xrange(0,n):
     subplot(n+1,5,5*j+1)
