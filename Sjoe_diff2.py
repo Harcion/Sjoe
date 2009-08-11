@@ -1,6 +1,7 @@
 from math import *
 import numpy as np
 import scipy as sc
+import pylab as pylab
 from scipy import *
 from pylab import *
 from Sjoe_m_func2 import *
@@ -94,8 +95,30 @@ for i in exc:
 print ""
 #print Js
 
-print Js[:5*n,:5*n]
-print rank(Js[:5*n,:5*n])
+P  = Js[:5*n,:7*n]
+print P
+print pylab.rank(P)
+
+(MP, NP) = P.shape
+(U, s, Vh) = sc.linalg.svd(P)
+S = sc.linalg.diagsvd(s, MP, NP)
+
+print U
+print ""
+print S
+print ""
+print Vh
+
+print pylab.rank(S)
+maxabs = np.max(np.absolute(s))
+maxdim = max(P.shape)
+
+tol    = maxabs * maxdim * 1e-16#mlab._eps_approx
+print "maxabs", maxabs
+print "maxdim", maxdim
+print "tol", tol
+print npy.sum(s > tol)
+
 #
 #def permute(P, frm, to):
 #	(M,N) = P.shape
