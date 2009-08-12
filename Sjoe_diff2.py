@@ -1,6 +1,7 @@
 from math import *
 import numpy as np
 import scipy as sc
+import pylab as pylab
 from scipy import *
 from pylab import *
 from Sjoe_m_func2 import *
@@ -36,7 +37,7 @@ def f(u):
 
 
 ## Initial position/motion of the rolling elements
-n = 6
+n = 1
 N = 5*n+4
 u0 = array(zeros(N))
 ind = Index(n)
@@ -75,13 +76,30 @@ for i in exc:
 	Js[:,k] = copy(J[:,i])
 	k += 1
 
-print ""
-print Js
-print ""
-print Js[:2+3*n,:2+3*n]
+P  = Js[:5*n,:7*n]
+print P
+print pylab.rank(P)
 
-print "Rank:", rank(Js[:2+3*n,:2+3*n])
-print "Max rank:", 2+3*n
+(MP, NP) = P.shape
+(U, s, Vh) = sc.linalg.svd(P)
+S = sc.linalg.diagsvd(s, MP, NP)
+
+print U
+print ""
+print S
+print ""
+print Vh
+
+print pylab.rank(S)
+maxabs = np.max(np.absolute(s))
+maxdim = max(P.shape)
+
+tol    = maxabs * maxdim * 1e-16#mlab._eps_approx
+print "maxabs", maxabs
+print "maxdim", maxdim
+print "tol", tol
+print npy.sum(s > tol)
+
 #
 #def permute(P, frm, to):
 #	(M,N) = P.shape
