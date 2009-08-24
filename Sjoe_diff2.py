@@ -9,6 +9,7 @@ from Sjoe_m_func2 import *
 from Sjoe_index import *
 from qrp import qrp
 import IVP
+from numpy import max
 
 np.set_printoptions(precision = 2)
 np.set_printoptions(linewidth = 240)
@@ -49,7 +50,7 @@ def jac(f, x, eps = sqrt(finfo(double).eps)):
 			xm[i] = -eps
 		fxp = f(xp)
 		fxm = f(xm)
-		A[:,i] = (fxp-fxm)/(2.*eps)
+		A[:,i] = (fxp-fxm)/(xp[i]-xm[i])
 	return A
 
 def f(u):
@@ -73,11 +74,12 @@ for i in xrange(0,n):
 	u0[ind.phidot(i)] 	= b0/2./a0*w0    	# phidot - note that phi is not a state variable since it does not matter here
 
 
-J = zeros((20,11,19))
-for i in range(0,20):
+num = 16
+J = zeros((num,11,19))
+for i in range(0,num):
 	J[i] = jac(f,u0,10**(-i))
-for i in range(0,20): print i, max(max(J[i],0),0)
-for k in range(0,20): print k, rank(J[k])
+for i in range(0,num): print i, max(max(J[i],0),0)
+for k in range(0,num): print k, rank(J[k])
 
 #
 #u0_old = copy(u0)
