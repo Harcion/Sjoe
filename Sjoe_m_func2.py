@@ -46,22 +46,16 @@ def rhs_ball(ball_state, outer_ring_state):
 
 	if di > 0:
 		ai = a0;
+		c = c0;
 	else:
 		ai = a0+di/2.;
+		c = c0+di/2.;
 	
 	if do > 0:
 		ao = a0;
-	else:
-		ao = a0+do/2.;
-	
-	if di > 0:
-		c = c0;
-	else:
-		c = c0+di/2.;
-
-	if do > 0:
 		b = b0;
 	else:
+		ao = a0+do/2.;
 		b = b0-do/2.;
 
 	drdoti = rdot;
