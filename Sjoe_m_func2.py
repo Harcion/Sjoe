@@ -29,7 +29,7 @@ m0 = 1 # Mass of the outer ring
 F_a = 1000 # External force on the outer ring
 #F_a = 0
 
-epsilon = 1
+epsilon = 1e-3
 def ip(x,c):
 	return -x**2/(8.*epsilon) + x/4. + c - epsilon/8.
 def ip2(x,c):
@@ -49,39 +49,39 @@ def rhs_ball(ball_state, outer_ring_state):
 	di = (r-a0)-c0;
 	do = b0-(ro+a0);
 
-#	if di > 0:
-#		ai = a0;
-#		c = c0;
-#	else:
-#		ai = a0+di/2.;
-#		c = c0+di/2.;
-#
-#	if do > 0:
-#		ao = a0;
-#		b = b0;
-#	else:
-#		ao = a0+do/2.;
-#		b = b0-do/2.;
-
-	if di > epsilon:
+	if di > 0:
 		ai = a0;
 		c = c0;
-	elif di > -epsilon:
-		ai = ip(di,a0);
-		c = ip(di,c0);
 	else:
 		ai = a0+di/2.;
 		c = c0+di/2.;
 
-	if do > epsilon:
+	if do > 0:
 		ao = a0;
 		b = b0;
-	elif do > -epsilon:
-		ao = ip(do,a0);
-		b = ip2(do,b0)
 	else:
 		ao = a0+do/2.;
-		b = b0
+		b = b0-do/2.;
+#
+#	if di > epsilon:
+#		ai = a0;
+#		c = c0;
+#	elif di > -epsilon:
+#		ai = ip(di,a0);
+#		c = ip(di,c0);
+#	else:
+#		ai = a0+di/2.;
+#		c = c0+di/2.;
+#
+#	if do > epsilon:
+#		ao = a0;
+#		b = b0;
+#	elif do > -epsilon:
+#		ao = ip(do,a0);
+#		b = ip2(do,b0)
+#	else:
+#		ao = a0+do/2.;
+#		b = b0
 
 	drdoti = rdot;
 	drdoto = -rdoto;
