@@ -29,7 +29,7 @@ m0 = 1 # Mass of the outer ring
 F_a = 1000 # External force on the outer ring
 #F_a = 0
 
-epsilon = 1e-3
+epsilon = 1e-6
 def ip(x,c):
 	return -x**2/(8.*epsilon) + x/4. + c - epsilon/8.
 def ip2(x,c):
@@ -62,7 +62,7 @@ def rhs_ball(ball_state, outer_ring_state):
 	else:
 		ao = a0+do/2.;
 		b = b0-do/2.;
-#
+		
 #	if di > epsilon:
 #		ai = a0;
 #		c = c0;
@@ -94,12 +94,14 @@ def rhs_ball(ball_state, outer_ring_state):
 
 # Update forces and torques
 	if di <= 0:
-		F_eli = c_el*abs(di)**(3./2.);
+		#F_eli = c_el*abs(di)**(3./2.);
+		F_eli = c_el*abs(di)**(2.);
 	else:
 		F_eli = 0;
 	
 	if do <= 0:
-		F_elo = c_el*abs(do)**(3./2.);
+		#F_elo = c_el*abs(do)**(3./2.);
+		F_elo = c_el*abs(do)**(2.);
 	else:
 		F_elo = 0;
 
