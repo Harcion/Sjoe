@@ -38,19 +38,23 @@ def jac(f, x, eps = sqrt(finfo(double).eps)):
 	M = fx.size
 	N = x.size
 	A = sc.zeros((M,N))
-	#eps =  sqrt(finfo(double).eps)
 	for i in range(0,N):
 		xp = copy(x)
 		xm = copy(x)
+
 		if x[i] != 0:
-			xp[i] = xp[i]*(1 + eps)
-			xm[i] = xm[i]*(1 - eps)
+			h = abs(x[i]*eps)
 		else:
-			xp[i] = eps
-			xm[i] = -eps
+			h = eps
+
+		xp[i] += h
+		xm[i] -= h
+
 		fxp = f(xp)
 		fxm = f(xm)
-		A[:,i] = (fxp-fxm)/(xp[i]-xm[i])
+
+		A[:,i] = (fxp-fxm)/(2*h)#/sqrt(h)
+
 	return A
 
 def f(u):
@@ -65,8 +69,8 @@ n = 3
 N = 5*n+4
 u0 = array(zeros(N))
 ind = Index(n)
-#u0[0] = 1e-7#*rand()
-#u0[1] = -1e-7#*rand()
+#u0[0] = 1e-6#*rand()
+#u0[1] = -1e-6#*rand()
 
 for i in xrange(0,n):
 	u0[ind.r(i)] 		= (1+0*1e-8)*(b0+c0)/2.	# r
@@ -75,20 +79,17 @@ for i in xrange(0,n):
 	u0[ind.thetadot(i)] = b0/(b0+c0)*w0 	# thetadot
 	u0[ind.phidot(i)] 	= b0/2./a0*w0    	# phidot - note that phi is not a state variable since it does not matter here
 
-#u0_old = copy(u0)
-#print u0_old
-#u0 = u0+u0*rand(19)*1e-4
-#print u0
-#print u0-u0_old
+#u0[ind.r(0)] *= 1+1e-5
+#u0[ind.r(1)] *= 1+1e-5
 
-#u0[ind.r(0)] *= (1+1e-5)
+u0 = u0+ u0*rand(19)*1e-3
 
 num = 16
 #eps = logspace(-15,-3,num)
 #print eps
 J = zeros((num,11,19))
 for i in range(0,num):
-	J[i] = jac_old(f,u0,10**(-i))
+	J[i] = jac(f,u0,10**(-i))
 #	J[i] = jac(f,u0,eps[i])
 for i in range(0,num): print i, max(max(J[i],0),0)
 for k in range(0,num): print k, rank(J[k])
