@@ -1,10 +1,12 @@
+from __future__ import division
 from math import *
 from scipy import *
 from pylab import *
 from Sjoe_index import Index
 
 ## Physical constants
-g = 9.82; # Gravity constant
+#g = 9.82; # Gravity constant
+#g = 0
 c_el = 1.065e10;
 c_sq1 = 0.08;
 c_sq2 = 5.e-4;
@@ -23,15 +25,17 @@ d0 = 0; # Offset between the origins of the ring coordinate systems
 rho = 7.82e3; # Density of the RE (iron)
 m = 4.*pi/3.*a0**3*rho; # Mass of the RE (it's a sphere)
 I = 2.*m*a0**2/5.; # Inertia of the RE
-w0 = 628.32; # Angular speed of the outer ring (~6000 rpm)
+#w0 = 628.32; # Angular speed of the outer ring (~6000 rpm)
 #w0 = 52.36; # Angular speed of the outer ring (~500 rpm)
+#w0 = 0
 m0 = 1 # Mass of the outer ring
-F_a = 1000 # External force on the outer ring
+#F_a = 1000 # External force on the outer ring
 #F_a = 0
 
 # This function calculates the right hand side of the equations of motion for
 # rolling element j and the forces acting on the outer ring.
-def rhs_ball(ball_state, outer_ring_state):
+def rhs_ball(ball_state, outer_ring_state, args = (9.81, 628.32)):
+	(g,w0) = args
 	r, th, rdot, thdot, phidot = ball_state
 	x, y, xdot, ydot = outer_ring_state
 # Update the deltas
@@ -85,7 +89,7 @@ def rhs_ball(ball_state, outer_ring_state):
 	
 	mu_i = 2.*mu0/pi*atan(gamma*dthdoti*pi/2./mu0); # Coefficient of friction
 	mu_o = 2.*mu0/pi*atan(gamma*dthdoto*pi/2./mu0); # Coefficient of friction   
-	
+
 	F_sli = abs(Ni)*mu_i;
 	F_slo = abs(No)*mu_o;
 
@@ -129,8 +133,9 @@ def rhs_ball(ball_state, outer_ring_state):
 	return rhs, F_x, F_y
 
 # This function calculates the right hand side of the equations of motion
-def oderhs(z,t):
-	n = (len(z)-4)/5
+def oderhs(t,z, args = (9.81, 628.32, 1000.)):
+	g,w0,F_a = args
+	n = int((len(z)-4)/5)
 	dz = array(zeros(len(z)))
 	ind = Index(n)
 	ring_state = r_[z[ind.x():ind.y()+1], z[ind.xdot():ind.ydot()+1]]
@@ -138,7 +143,7 @@ def oderhs(z,t):
 	F_y = F_a
 
 	for j in xrange(0,n):
-		rhs, F_xj, F_yj = rhs_ball(r_[z[ind.r(j):ind.theta(j)+1], z[ind.rdot(j):ind.phidot(j)+1]], ring_state)
+		rhs, F_xj, F_yj = rhs_ball(r_[z[ind.r(j):ind.theta(j)+1], z[ind.rdot(j):ind.phidot(j)+1]], ring_state, args = (g,w0))
 		F_x += F_xj
 		F_y += F_yj
 		dz[ind.r(j)] = z[ind.rdot(j)]

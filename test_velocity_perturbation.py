@@ -4,9 +4,16 @@ from numpy import *
 import IVP
 import time
 
-def Sjoe(t,y):
-	return oderhs(y,t)
-Sjoe.name = 'Sjoe'
+def Sjoe(args = None):
+    if args != None:
+        def rhs(t,y):
+            return oderhs(t,y, args)
+    else:
+        def rhs(t,y):
+            return oderhs(t,y)
+    rhs.name = 'rhs'
+    return rhs
+#Sjoe.name = 'Sjoe'
 
 ## Initial position/motion of the rolling elements
 n = 8
@@ -14,60 +21,62 @@ N = 5*n+4
 u0 = array(zeros(N))
 ind = Index(n)
 
-#for i in xrange(0,n):
-#	u0[ind.r(i)] 		= (b0+c0)/2       # r
-#	u0[ind.theta(i)] 	= -pi/2 + 2*pi*i/n# theta
-#	u0[ind.rdot(i)] 	= 0               # rdot
-#	u0[ind.thetadot(i)] = b0/(b0+c0)*w0   # thetadot
-#	u0[ind.phidot(i)] 	= b0/2/a0*w0      # phidot - note that phi is not a state variable since it does not matter here
+for i in xrange(0,n):
+    u0[ind.r(i)]        = (b0+c0)/2       # r
+    u0[ind.theta(i)]    = -pi/2 + 2*pi*i/n# theta
+    u0[ind.rdot(i)]     = 0               # rdot
+    u0[ind.thetadot(i)] = b0/(b0+c0)*w0   # thetadot
+    u0[ind.phidot(i)]   = b0/2/a0*w0      # phidot - note that phi is not a state variable since it does not matter here
 
-#cv=IVP.CVode(Sjoe,u0)
-#cv.set_method('BDF','Newton')
-#atol = array(zeros(N))
-#for i in range(0,N):
-#	atol[i] = 1e-8
-#cv.set_tolerance(atol,rtol=1.e-8)
-#
-#numsteps = 100
-#t0 = 0.005
-#
-#ex_time0 = time.clock()
-#cv(t0,numsteps)
-#ex_time0 = time.clock() - ex_time0
-#
-#stats=cv.stats(pr=1)
-#print stats
-#
-#Y = cv.aus
-#t = cv.ts
-#state0 = Y[-1]
-#
-#for i in range(0,n):
-#	subplot(n+1,5,5*i+1) # r
-#	plot(t, Y[:,ind.r(i)])
-#
-#	subplot(n+1,5,5*i+2) # th
-#	plot(t, Y[:,ind.theta(i)])
-#
-#	subplot(n+1,5,5*i+3) # rdot
-#	plot(t, Y[:,ind.rdot(i)])
-#
-#	subplot(n+1,5,5*i+4) # thetadot
-#	plot(t, Y[:,ind.thetadot(i)])
-#
-#	subplot(n+1,5,5*i+5) # phidot
-#	plot(t, Y[:,ind.phidot(i)])
-#
-#subplot(n+1,5,5*n+1)
-#plot(t, Y[:,ind.x()])
-#subplot(n+1,5,5*n+2)
-#plot(t, Y[:,ind.xdot()])
-#subplot(n+1,5,5*n+3)
-#plot(t, Y[:,ind.y()])
-#subplot(n+1,5,5*n+4)
-#plot(t, Y[:,ind.ydot()])
-#
-#show()
+rhs = Sjoe()
+
+cv=IVP.CVode(rhs,u0)
+cv.set_method('BDF','Newton')
+atol = array(zeros(N))
+for i in range(0,N):
+    atol[i] = 1e-8
+cv.set_tolerance(atol,rtol=1.e-8)
+
+numsteps = 100
+t0 = 0.005
+
+ex_time0 = time.clock()
+cv(t0,numsteps)
+ex_time0 = time.clock() - ex_time0
+
+stats=cv.stats(pr=1)
+print stats
+
+Y = cv.aus
+t = cv.ts
+state0 = Y[-1]
+
+for i in range(0,n):
+    subplot(n+1,5,5*i+1) # r
+    plot(t, Y[:,ind.r(i)])
+
+    subplot(n+1,5,5*i+2) # th
+    plot(t, Y[:,ind.theta(i)])
+
+    subplot(n+1,5,5*i+3) # rdot
+    plot(t, Y[:,ind.rdot(i)])
+
+    subplot(n+1,5,5*i+4) # thetadot
+    plot(t, Y[:,ind.thetadot(i)])
+
+    subplot(n+1,5,5*i+5) # phidot
+    plot(t, Y[:,ind.phidot(i)])
+
+subplot(n+1,5,5*n+1)
+plot(t, Y[:,ind.x()])
+subplot(n+1,5,5*n+2)
+plot(t, Y[:,ind.xdot()])
+subplot(n+1,5,5*n+3)
+plot(t, Y[:,ind.y()])
+subplot(n+1,5,5*n+4)
+plot(t, Y[:,ind.ydot()])
+
+show()
 #
 #len0 = len(cv.ts)
 #
@@ -151,80 +160,90 @@ ind = Index(n)
 # 0.005:  187.48000000000013
 # 0.01 :   45.1400000000001
 
+#
+#u0old = copy(u0)
+#u0 = array([ -3.12389648e-07,   2.82812046e-05,   2.50096813e-02,
+#        3.14817787e-01,   2.50262817e-02,   1.09934532e+00,
+#        2.50282524e-02,   1.88060072e+00,   2.50144220e-02,
+#        2.66663069e+00,   2.49960013e-02,   3.45423783e+00,
+#        2.49875915e-02,   4.24115807e+00,   2.49866347e-02,
+#        5.02732275e+00,   2.49936367e-02,   5.81286402e+00,
+#        -7.46800018e-03,  -7.59069491e-04,   2.77472966e-03,
+#        3.76622261e+02,   1.88670729e+03,   8.29568845e-04,
+#        3.76254001e+02,   1.88824350e+03,  -1.57856688e-03,
+#        3.75725818e+02,   1.89094483e+03,  -3.08763092e-03,
+#        3.76585387e+02,   1.88703174e+03,  -1.43424948e-03,
+#        3.77056381e+02,   1.88573443e+03,  -4.33668989e-04,
+#        3.77137066e+02,   1.88709100e+03,   8.07733445e-04,
+#        3.77137365e+02,   1.88720102e+03,   1.57545715e-03,
+#        3.77056246e+02,   1.88600149e+03])
+#
+##for i in range(0,n):
+##	u0[ind.thetadot(i)] = u0old[ind.thetadot(i)]
+#
+#cv=IVP.CVode(rhs,u0)
+#cv.set_method('BDF','Newton')
+#atol = array(zeros(N))
+#for i in range(0,N):
+#    atol[i] = 1e-8
+#cv.set_tolerance(atol,rtol=1.e-8)
+#
+#numsteps = 100
+#
+## Perturb the velocities:
+#for i in range(0,n):
+#    u0[ind.thetadot(i)] *= (1 + rand()/10.)
+#
+#
+#t1 = 0.005
+#
+#ex_time1 = time.clock()
+#cv(t1,numsteps)
+#ex_time1 = time.clock() - ex_time1
+#
+#Y = cv.aus
+#t = cv.ts
+#state0 = Y[-1]
+#
+#figure()
+#for i in range(0,n):
+#    subplot(n+1,5,5*i+1) # r
+#    plot(t, Y[:,ind.r(i)])
+#
+#    subplot(n+1,5,5*i+2) # th
+#    plot(t, Y[:,ind.theta(i)])
+#
+#    subplot(n+1,5,5*i+3) # rdot
+#    plot(t, Y[:,ind.rdot(i)])
+#
+#    subplot(n+1,5,5*i+4) # thetadot
+#    plot(t, Y[:,ind.thetadot(i)])
+#
+#    subplot(n+1,5,5*i+5) # phidot
+#    plot(t, Y[:,ind.phidot(i)])
+#
+#subplot(n+1,5,5*n+1)
+#plot(t, Y[:,ind.x()])
+#subplot(n+1,5,5*n+2)
+#plot(t, Y[:,ind.xdot()])
+#subplot(n+1,5,5*n+3)
+#plot(t, Y[:,ind.y()])
+#subplot(n+1,5,5*n+4)
+#plot(t, Y[:,ind.ydot()])
+#
+#show()
 
 
-u0 = array([ -3.12389648e-07,   2.82812046e-05,   2.50096813e-02,
-		3.14817787e-01,   2.50262817e-02,   1.09934532e+00,
-		2.50282524e-02,   1.88060072e+00,   2.50144220e-02,
-		2.66663069e+00,   2.49960013e-02,   3.45423783e+00,
-		2.49875915e-02,   4.24115807e+00,   2.49866347e-02,
-		5.02732275e+00,   2.49936367e-02,   5.81286402e+00,
-		-7.46800018e-03,  -7.59069491e-04,   2.77472966e-03,
-		3.76622261e+02,   1.88670729e+03,   8.29568845e-04,
-		3.76254001e+02,   1.88824350e+03,  -1.57856688e-03,
-		3.75725818e+02,   1.89094483e+03,  -3.08763092e-03,
-		3.76585387e+02,   1.88703174e+03,  -1.43424948e-03,
-		3.77056381e+02,   1.88573443e+03,  -4.33668989e-04,
-		3.77137066e+02,   1.88709100e+03,   8.07733445e-04,
-		3.77137365e+02,   1.88720102e+03,   1.57545715e-03,
-		3.77056246e+02,   1.88600149e+03])
-
-
-
-cv=IVP.CVode(Sjoe,u0)
-cv.set_method('BDF','Newton')
-atol = array(zeros(N))
-for i in range(0,N):
-	atol[i] = 1e-8
-cv.set_tolerance(atol,rtol=1.e-8)
-
-numsteps = 100
-
-# Perturb the velocities:
-for i in range(0,n):
-	u0[ind.thetadot(i)] *= (1 + rand()/10.)
-
-
-t1 = 0.005
-
-ex_time1 = time.clock()
-cv(t1,numsteps)
-ex_time1 = time.clock() - ex_time1
-
-Y = cv.aus
-t = cv.ts
-state0 = Y[-1]
-
-figure()
-for i in range(0,n):
-	subplot(n+1,5,5*i+1) # r
-	plot(t, Y[:,ind.r(i)])
-
-	subplot(n+1,5,5*i+2) # th
-	plot(t, Y[:,ind.theta(i)])
-
-	subplot(n+1,5,5*i+3) # rdot
-	plot(t, Y[:,ind.rdot(i)])
-
-	subplot(n+1,5,5*i+4) # thetadot
-	plot(t, Y[:,ind.thetadot(i)])
-
-	subplot(n+1,5,5*i+5) # phidot
-	plot(t, Y[:,ind.phidot(i)])
-
-subplot(n+1,5,5*n+1)
-plot(t, Y[:,ind.x()])
-subplot(n+1,5,5*n+2)
-plot(t, Y[:,ind.xdot()])
-subplot(n+1,5,5*n+3)
-plot(t, Y[:,ind.y()])
-subplot(n+1,5,5*n+4)
-plot(t, Y[:,ind.ydot()])
-
-show()
-
-
-##
-# extime1 = 63.180000000000064
-#           56.940000000000055
-#			57.240000000000009
+### Results:
+###
+### Initial 0.005 seconds			:  205 seconds
+###
+### Restart with same values		:	43 seconds
+### Restart with original values	:	57 seconds
+### Restart with max 10% random diff:  	64.62 sec
+###										76.29 sec
+###										69.85 sec
+###										61.36 sec
+###										75.63 sec
+###
+###							Average:	69.55 sec

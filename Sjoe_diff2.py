@@ -16,7 +16,7 @@ np.set_printoptions(linewidth = 240)
 #np.set_printoptions(suppress = True)
 
 def jac_old(f, x, eps = sqrt(finfo(double).eps)):
-	""" Computes the finite-difference approximation of the jacobian A=f'(x) of f at x"""
+	""" Computes the finite-difference approximation of the Jacobian A=f'(x) of f at x"""
 	fx = f(x)
 	M = fx.size
 	N = x.size
@@ -33,7 +33,7 @@ def jac_old(f, x, eps = sqrt(finfo(double).eps)):
 	return A
 
 def jac(f, x, eps = sqrt(finfo(double).eps)):
-	""" Computes the finite-difference approximation of the jacobian A=f'(x) of f at x"""
+	""" Computes the finite-difference approximation of the Jacobian A=f'(x) of f at x"""
 	fx = f(x)
 	M = fx.size
 	N = x.size
@@ -53,7 +53,7 @@ def jac(f, x, eps = sqrt(finfo(double).eps)):
 		fxp = f(xp)
 		fxm = f(xm)
 
-		A[:,i] = (fxp-fxm)/(2*h)#/sqrt(h)
+		A[:,i] = (fxp-fxm)/(2*h)
 
 	return A
 
